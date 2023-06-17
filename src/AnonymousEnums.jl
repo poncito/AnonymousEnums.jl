@@ -1,13 +1,13 @@
 module AnonymousEnums
 
-export @enumanon
+export @anonymousenum
 
 abstract type AnonymousEnum{T<:Integer} <: Enum{T} end
 
 Base.:(==)(s::Symbol, x::AnonymousEnum) = ==(x, s)
 Base.:(==)(x::T, s::Symbol) where {T<:AnonymousEnum} = ==(x, T(s))
 
-macro enumanon(T, syms...)
+macro anonymousenum(T, syms...)
     if isempty(syms)
         throw(ArgumentError("no arguments given for AnonymousEnum $T"))
     end
