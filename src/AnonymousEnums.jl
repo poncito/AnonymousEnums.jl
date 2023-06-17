@@ -22,7 +22,7 @@ macro enumanon(T, syms...)
     elseif !isa(T, Symbol)
         throw(ArgumentError("invalid type expression for AnonymousEnum $T"))
     end
-    values = basetype[]
+    values_ = basetype[]
     seen = Set{Symbol}()
     namemap = Dict{basetype,Symbol}()
     lo = hi = 0
@@ -35,7 +35,7 @@ macro enumanon(T, syms...)
     for s in syms
         s isa LineNumberNode && continue
         if isa(s, Symbol)
-            if i == typemin(basetype) && !isempty(values)
+            if i == typemin(basetype) && !isempty(values_)
                 throw(ArgumentError("overflow in value \"$s\" of AnonymousEnum $typename"))
             end
         elseif isa(s, Expr) &&
@@ -58,12 +58,12 @@ macro enumanon(T, syms...)
             throw(ArgumentError("both $s and $(namemap[i]) have value $i in AnonymousEnum $typename; values must be unique"))
         end
         namemap[i] = s
-        push!(values, i)
+        push!(values_, i)
         if s in seen
             throw(ArgumentError("name \"$s\" in AnonymousEnum $typename is not unique"))
         end
         push!(seen, s)
-        if length(values) == 1
+        if length(values_) == 1
             lo = hi = i
         else
             lo = min(lo, i)
@@ -71,7 +71,6 @@ macro enumanon(T, syms...)
         end
         i += oneunit(i)
     end
-    _typename_str = string(typename)
 
     expr_symbol_constructor = :(function $(esc(typename))(x::Symbol) end)
     expr_symbol_constructor_body = last(expr_symbol_constructor.args).args
@@ -84,7 +83,7 @@ macro enumanon(T, syms...)
         # enum definition
         primitive type $(esc(typename)) <: AnonymousEnum{$(basetype)} $(sizeof(basetype) * 8) end
         function $(esc(typename))(x::Integer)
-            $(Base.Enums.membershiptest(:x, values)) || Base.Enums.enum_argument_error($(Expr(:quote, typename)), x)
+            $(Base.Enums.membershiptest(:x, values_)) || Base.Enums.enum_argument_error($(Expr(:quote, typename)), x)
             return Core.bitcast($(esc(typename)), convert($(basetype), x))
         end
         $expr_symbol_constructor
@@ -93,9 +92,7 @@ macro enumanon(T, syms...)
         end
         Base.typemin(x::Type{$(esc(typename))}) = $(esc(typename))($lo)
         Base.typemax(x::Type{$(esc(typename))}) = $(esc(typename))($hi)
-        let insts = (Any[ $(esc(typename))(v) for v in $values ]...,)
-            Base.instances(::Type{$(esc(typename))}) = insts
-        end
+        Base.instances(::Type{$(esc(typename))}) = $(Tuple(v for v in values(namemap)))
     end
     push!(blk.args, :nothing)
     blk.head = :toplevel

@@ -32,6 +32,15 @@ banana = Fruit(:Banana)
 
 @test apple < banana
 
+@test apple == :Apple
+@test banana == :Banana
+@test banana != :Apple
+@test apple != :Banana
+
+@test typemin(Fruit) == apple
+@test typemax(Fruit) == banana
+@test instances(Fruit) == (:Apple, :Banana)
+
 # Base type specification
 @enumanon Fruit8::Int8 Apple
 @test Fruit8 <: AnonymousEnums.AnonymousEnum{Int8} <: Base.Enum{Int8}
