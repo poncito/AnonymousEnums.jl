@@ -2,14 +2,14 @@ module AnonymousEnums
 
 export @enumanon
 
-abstract type SymbolEnum{T<:Integer} <: Enum{T} end
+abstract type AnonymousEnum{T<:Integer} <: Enum{T} end
 
-Base.:(==)(s::Symbol, x::SymbolEnum) = ==(x, s)
-Base.:(==)(x::T, s::Symbol) where {T<:SymbolEnum} = ==(x, T(s))
+Base.:(==)(s::Symbol, x::AnonymousEnum) = ==(x, s)
+Base.:(==)(x::T, s::Symbol) where {T<:AnonymousEnum} = ==(x, T(s))
 
 macro enumanon(T, syms...)
     if isempty(syms)
-        throw(ArgumentError("no arguments given for SymbolEnum $T"))
+        throw(ArgumentError("no arguments given for AnonymousEnum $T"))
     end
     basetype = Int32
     typename = T
@@ -17,10 +17,10 @@ macro enumanon(T, syms...)
         typename = T.args[1]
         basetype = Core.eval(__module__, T.args[2])
         if !isa(basetype, DataType) || !(basetype <: Integer) || !isbitstype(basetype)
-            throw(ArgumentError("invalid base type for SymbolEnum $typename, $T=::$basetype; base type must be an integer primitive type"))
+            throw(ArgumentError("invalid base type for AnonymousEnum $typename, $T=::$basetype; base type must be an integer primitive type"))
         end
     elseif !isa(T, Symbol)
-        throw(ArgumentError("invalid type expression for SymbolEnum $T"))
+        throw(ArgumentError("invalid type expression for AnonymousEnum $T"))
     end
     values = basetype[]
     seen = Set{Symbol}()
@@ -36,31 +36,31 @@ macro enumanon(T, syms...)
         s isa LineNumberNode && continue
         if isa(s, Symbol)
             if i == typemin(basetype) && !isempty(values)
-                throw(ArgumentError("overflow in value \"$s\" of SymbolEnum $typename"))
+                throw(ArgumentError("overflow in value \"$s\" of AnonymousEnum $typename"))
             end
         elseif isa(s, Expr) &&
                (s.head === :(=) || s.head === :kw) &&
                length(s.args) == 2 && isa(s.args[1], Symbol)
             i = Core.eval(__module__, s.args[2]) # allow exprs, e.g. uint128"1"
             if !isa(i, Integer)
-                throw(ArgumentError("invalid value for SymbolEnum $typename, $s; values must be integers"))
+                throw(ArgumentError("invalid value for AnonymousEnum $typename, $s; values must be integers"))
             end
             i = convert(basetype, i)
             s = s.args[1]
             hasexpr = true
         else
-            throw(ArgumentError(string("invalid argument for SymbolEnum ", typename, ": ", s)))
+            throw(ArgumentError(string("invalid argument for AnonymousEnum ", typename, ": ", s)))
         end
         if !Base.isidentifier(s)
-            throw(ArgumentError("invalid name for SymbolEnum $typename; \"$s\" is not a valid identifier"))
+            throw(ArgumentError("invalid name for AnonymousEnum $typename; \"$s\" is not a valid identifier"))
         end
         if hasexpr && haskey(namemap, i)
-            throw(ArgumentError("both $s and $(namemap[i]) have value $i in SymbolEnum $typename; values must be unique"))
+            throw(ArgumentError("both $s and $(namemap[i]) have value $i in AnonymousEnum $typename; values must be unique"))
         end
         namemap[i] = s
         push!(values, i)
         if s in seen
-            throw(ArgumentError("name \"$s\" in SymbolEnum $typename is not unique"))
+            throw(ArgumentError("name \"$s\" in AnonymousEnum $typename is not unique"))
         end
         push!(seen, s)
         if length(values) == 1
@@ -82,7 +82,7 @@ macro enumanon(T, syms...)
 
     blk = quote
         # enum definition
-        primitive type $(esc(typename)) <: SymbolEnum{$(basetype)} $(sizeof(basetype) * 8) end
+        primitive type $(esc(typename)) <: AnonymousEnum{$(basetype)} $(sizeof(basetype) * 8) end
         function $(esc(typename))(x::Integer)
             $(Base.Enums.membershiptest(:x, values)) || Base.Enums.enum_argument_error($(Expr(:quote, typename)), x)
             return Core.bitcast($(esc(typename)), convert($(basetype), x))
