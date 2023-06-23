@@ -53,5 +53,5 @@ _constant_, which allows for the same performance as classical enum.
 
 ## See also
 
-- [EnumX.jl](ha)/Wnumctps://github.com/fredrikekre/EnumX.jl): this package implements
+- [EnumX.jl](https://github.com/fredrikekre/EnumX.jl): this package implements
 the scoped enum as mentioned above.
