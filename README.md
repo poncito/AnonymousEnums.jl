@@ -1,3 +1,5 @@
+[![CI](https://github.com/poncito/AnonymousEnums.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/poncito/AnonymousEnums.jl/actions/workflows/ci.yml)
+
 # AnonymousEnums.jl
 
 Enums without named instances.
