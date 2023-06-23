@@ -9,7 +9,7 @@ const Ananab = -1
 @testset "AnonymousEnums" begin
 
     # Basic
-    @enumanon Fruit Apple Banana
+    @anonymousenum Fruit Apple Banana
 
     @test Base.Enums.namemap(Fruit) == Dict{Int32,Symbol}(0 => :Apple, 1 => :Banana)
     @test Base.Enums.basetype(Fruit) == Int32
@@ -42,27 +42,27 @@ const Ananab = -1
     @test instances(Fruit) == (:Apple, :Banana)
 
     # Base type specification
-    @enumanon Fruit8::Int8 Apple
+    @anonymousenum Fruit8::Int8 Apple
     @test Fruit8 <: AnonymousEnums.AnonymousEnum{Int8} <: Base.Enum{Int8}
     @test Base.Enums.basetype(Fruit8) === Int8
     @test Integer(Fruit8(:Apple)) === Int8(0)
 
-    @enumanon FruitU8::UInt8 Apple Banana
+    @anonymousenum FruitU8::UInt8 Apple Banana
     @test Base.Enums.basetype(FruitU8) === UInt8
     @test FruitU8(:Apple) === FruitU8(0)
 
-    @enumanon Fruit16::T16 Apple
+    @anonymousenum Fruit16::T16 Apple
     @test Fruit16 <: AnonymousEnums.AnonymousEnum{Int16} <: Base.Enum{Int16}
     @test Base.Enums.basetype(Fruit16) === Int16
     @test Integer(Fruit16(:Apple)) === Int16(0)
 
-    @enumanon Fruit64::getInt64() Apple
+    @anonymousenum Fruit64::getInt64() Apple
     @test Fruit64 <: AnonymousEnums.AnonymousEnum{Int64} <: Base.Enum{Int64}
     @test Base.Enums.basetype(Fruit64) === Int64
     @test Integer(Fruit64(:Apple)) == Int64(0)
 
     try
-        @macroexpand @enumanon (Fr + uit) Apple
+        @macroexpand @anonymousenum (Fr + uit) Apple
         error()
     catch err
         err isa LoadError && (err = err.error)
@@ -72,7 +72,7 @@ const Ananab = -1
 
 
     # Block syntax
-    @enumanon FruitBlock begin
+    @anonymousenum FruitBlock begin
         Apple
         Banana
     end
@@ -80,7 +80,7 @@ const Ananab = -1
     @test FruitBlock(:Apple) === FruitBlock(0)
     @test FruitBlock(:Banana) === FruitBlock(1)
 
-    @enumanon FruitBlock8::Int8 begin
+    @anonymousenum FruitBlock8::Int8 begin
         Apple
         Banana
     end
@@ -90,17 +90,17 @@ const Ananab = -1
 
 
     # Custom values
-    @enumanon FruitValues Apple = 1 Banana = (1 + 2) Orange
+    @anonymousenum FruitValues Apple = 1 Banana = (1 + 2) Orange
     @test FruitValues(:Apple) === FruitValues(1)
     @test FruitValues(:Banana) === FruitValues(3)
     @test FruitValues(:Orange) === FruitValues(4)
 
-    @enumanon FruitValues8::Int8 Apple = -1 Banana = (1 + 2) Orange
+    @anonymousenum FruitValues8::Int8 Apple = -1 Banana = (1 + 2) Orange
     @test FruitValues8(:Apple) === FruitValues8(-1)
     @test FruitValues8(:Banana) === FruitValues8(3)
     @test FruitValues8(:Orange) === FruitValues8(4)
 
-    @enumanon FruitValuesBlock begin
+    @anonymousenum FruitValuesBlock begin
         Apple = sum((1, 2, 3))
         Banana
     end
@@ -108,7 +108,7 @@ const Ananab = -1
     @test FruitValuesBlock(:Banana) === FruitValuesBlock(7)
 
     try
-        @macroexpand @enumanon Fruit::Int8 Apple = typemax(Int8) Banana
+        @macroexpand @anonymousenum Fruit::Int8 Apple = typemax(Int8) Banana
         error()
     catch err
         err isa LoadError && (err = err.error)
@@ -116,7 +116,7 @@ const Ananab = -1
         @test err.msg == "overflow in value \"Banana\" of AnonymousEnum Fruit"
     end
     try
-        @macroexpand @enumanon Fruit::Int8 Apple = "apple"
+        @macroexpand @anonymousenum Fruit::Int8 Apple = "apple"
         error()
     catch err
         err isa LoadError && (err = err.error)
@@ -125,14 +125,14 @@ const Ananab = -1
               "invalid value for AnonymousEnum Fruit, Apple = \"apple\"; values must be integers"
     end
     try
-        @macroexpand @enumanon Fruit::Int8 Apple = 128
+        @macroexpand @anonymousenum Fruit::Int8 Apple = 128
         error()
     catch err
         err isa LoadError && (err = err.error)
         @test err isa InexactError
     end
     try
-        @macroexpand @enumanon Fruit::Int8 Apple()
+        @macroexpand @anonymousenum Fruit::Int8 Apple()
         error()
     catch err
         err isa LoadError && (err = err.error)
@@ -140,7 +140,7 @@ const Ananab = -1
         @test err.msg == "invalid argument for AnonymousEnum Fruit: Apple()"
     end
     try
-        @macroexpand @enumanon Fruit Apple Apple
+        @macroexpand @anonymousenum Fruit Apple Apple
         error()
     catch err
         err isa LoadError && (err = err.error)
@@ -150,9 +150,9 @@ const Ananab = -1
 
 
     # Duplicate values
-    @test_throws LoadError eval(:(@enumanon FruitDup Apple = 0 Banana = 0))
+    @test_throws LoadError eval(:(@anonymousenum FruitDup Apple = 0 Banana = 0))
 
     # Empty enum
-    @test_throws LoadError eval(:(@enumanon FruitDup))
+    @test_throws LoadError eval(:(@anonymousenum FruitDup))
 
 end
