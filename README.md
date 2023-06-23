@@ -4,26 +4,15 @@
 
 Enums without named instances.
 
-The macro `Base.@enum` creates _named_ instances for the subtypes of `Enum`.
-Having to provide a unique names to those instances can be problematic sometimes.
-This is particularly true for code generation.
+The `Base.@enum` macro creates _named_ instances for the subtypes of `Enum`. However, providing unique names for those instances can sometimes be problematic, especially when it comes to code generation.
 
-In order to circumvent those issues, some packages (see e.g. [EnumX.jl](https://github.com/fredrikekre/EnumX.jl))
-provide alternatives to the `Base.@enum` macro,
-where the strategy consists in implementing those instances in
-a module.
+To address these issues, some packages (such as [EnumX.jl](https://github.com/fredrikekre/EnumX.jl)) offer alternatives to the `Base.@enum` macro. These alternatives involve implementing instances in a module.
 
-This package goes one step further and simply does not name the instances at all!
-The idea is that knowing the subtype of `Enum` should be enough to make sense of the values
-of an enum.
-Hence, it is should be possible to manipulate the instance through their symbol.
-Also, since the Julia compiler propagates constant symbols, no performance impact
-should be expected.
+This package takes it a step further by not naming the instances at all! The idea is that knowing the subtype of `Enum` should be sufficient to understand the values of an enum. Therefore, it should be possible to manipulate the instances using their symbols. Additionally, since the Julia compiler propagates constant symbols, no performance impact is expected.
 
 ## Usage
 
-The package provides the (exported) `@anonymousenum` macro to create an `Enum` subtype.
-The macro can be used like `Base.@enum`.
+The package provides the exported `@anonymousenum` macro for creating an `Enum` subtype. This macro can be used similarly to `Base.@enum`.
 
 ```julia
 julia> @anonymousenum Fruit::UInt8 begin
@@ -33,15 +22,15 @@ julia> @anonymousenum Fruit::UInt8 begin
 julia> apple = Fruit(:apple)
 julia> @assert apple == Fruit(0)
 julia> @assert apple == :apple
-julia> @ssert instances(Fruit) == (:apple, :banana)
+julia> @assert instances(Fruit) == (:apple, :banana)
 ```
 
-## Code generation use case
+## Use case: Code generation
 
-This package was developped to be able to generate enums from type schemas,
-while keeping the generated types and scopes a code generator implementation detail.
+This package was developed to generate enums from type schemas while keeping the generated types and scopes as implementation details of the code generator.
 
-This package allows to generate this kind of API:
+Using this package allows generating an API like the following:
+
 ```julia
 julia> writer.fruit.type = :apple
 julia> if reader.fruit.type == :apple
@@ -50,10 +39,9 @@ julia> if reader.fruit.type == :apple
            # do something else
        end
 ```
-Note in the example above, that the symbols `:apple` and `:banana` are
-_constant_, which allows for the same performance as classical enum.
+
+Note that in the example above, the symbols `:apple` and `:banana` are constant, enabling the same performance as traditional enums.
 
 ## See also
 
-- [EnumX.jl](https://github.com/fredrikekre/EnumX.jl): this package implements
-the scoped enum as mentioned above.
+- [EnumX.jl](https://github.com/fredrikekre/EnumX.jl): This package implements scoped enums, as mentioned above.
