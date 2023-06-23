@@ -1,4 +1,5 @@
 [![CI](https://github.com/poncito/AnonymousEnums.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/poncito/AnonymousEnums.jl/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/poncito/AnonymousEnums.jl/branch/main/graph/badge.svg?token=X8N7E3YFPF)](https://codecov.io/gh/poncito/AnonymousEnums.jl)
 
 # AnonymousEnums.jl
 
